@@ -7,7 +7,7 @@ type itemProps = {
 };
 export default function ImageCard({ wallpaper }: itemProps) {
   return (
-    <Link href={`/${wallpaper.id}`} asChild>
+    <Link href={`/wallpapers/${wallpaper.id}`} asChild>
       <Pressable style={styles.container}>
         <Image
           style={styles.image}
