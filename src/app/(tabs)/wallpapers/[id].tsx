@@ -38,24 +38,25 @@ const ImageDetailScreen = () => {
       <Stack.Screen options={{ title: "Wallpaper" }} />
 
       {loading ? (
-        <Loader />
-      ) : (
-        wallpaper && (
-          <>
-             <ImageBackground
-            style={styles.imageContainer}
-            source={{ uri: wallpaper.path }}
-          >
-            <Text style={styles.title}># {wallpaper.purity}</Text>
-            <Text style={styles.details}># {wallpaper.category}</Text>
-            <Text style={styles.details}>{wallpaper.resolution}</Text>
-            <TouchableOpacity style={styles.button} onPress={handleDownload}>
-              <Text style={styles.buttonText}>Download</Text>
-            </TouchableOpacity>
-            </ImageBackground>
-          </>
-        )
-      )}
+  <Loader />
+) : (
+  wallpaper && (
+    <>
+      <ImageBackground
+        style={styles.imageContainer}
+        source={{ uri: wallpaper.path }}
+      >
+        <View style={styles.buttonContainer}>
+          <Text style={styles.details}>{wallpaper.resolution}</Text>
+          <TouchableOpacity style={styles.button} onPress={handleDownload}>
+            <Text style={styles.buttonText}>Download</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+    </>
+  )
+)}
+
     </View>
   );
 };
@@ -73,29 +74,26 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  title: {
-    // backgroundColor: 'rgba(246, 246, 246, 0.21)',
-    borderRadius: 50,
-    width: 100,
-    fontSize: 16,
-    marginTop: '150%',
-    marginBottom: 5,
-    marginStart: 10
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 700
   },
   details: {
-    // backgroundColor: 'rgba(246, 246, 246, 0.21)',
-    borderRadius: 50,
-    width:100,
-    fontSize: 16,
-    marginStart: 10,
-    marginBottom: 5
-  },
-  button: {
-    // backgroundColor: "blue",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
-    marginTop: 10,
-    width: '100%',
+    margin: 10,
+    flex: 1, 
+    textAlign:'center'
+  },
+  button: {
+    backgroundColor: "blue",
+    width:'45%',
+    padding: 10,
+    borderRadius: 5,
+    margin: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -104,4 +102,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  
 });
