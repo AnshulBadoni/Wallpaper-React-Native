@@ -1,33 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { StyleSheet, TextInput, FlatList } from "react-native";
+import Loader from "@/src/components/reuseable/Loader";
 import { Text, View } from "@/src/components/Themed";
 import { ImageCard } from "@/src/components/reuseable";
+import axios from "axios";
 
 export default function TabTwoScreen() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [data, setData] = useState<any[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<any>(null);
   const apikey = "XjrNRAQHiQfQcM5KujT1daeAeOX6UGej";
+  const apiUrl = `https://wallhaven.cc/api/v1/search?q=${searchQuery}&apikey=${apikey}&page=${page}&purity=100`;
+  const numColumns = 2;
 
+  const fetchData = useCallback(() => {
+    setLoading(true);
+    axios
+      .get(apiUrl)
+      .then((response) => {
+        const newData = response.data.data;
+        setData((prevData) => [...prevData, ...newData]);
+        setPage((prevPage) => prevPage + 1);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setError(error);
+        setLoading(false);
+      });
+  }, [searchQuery, page]); 
+
+  
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://wallhaven.cc/api/v1/search?q=${searchQuery}&apikey=${apikey}&page=1&sorting=random&purity=100`
-        );
-        const data = await response.json();
-        console.log("Search Results:", data);
-        setData(data);
-      } catch (error) {
-        console.error("Error searching:", error);
-      }
-    };
-
-    if (searchQuery !== "") {
-      fetchData();
-    } else {
-      setData([]);
-    }
-  }, [searchQuery]);
+    fetchData();
+  }, [fetchData]); 
 
   return (
     <View style={styles.container}>
@@ -35,16 +43,27 @@ export default function TabTwoScreen() {
         style={styles.searchInput}
         placeholder="Search..."
         value={searchQuery}
-        onChangeText={setSearchQuery}
+        onChangeText={(text) => setSearchQuery(prevSearchQuery => prevSearchQuery !== text ? text : prevSearchQuery)} // Use functional update
       />
-      <FlatList
-        data={data}
-        renderItem={({ item }) => {
-          console.log("Rendering Item:", item); // Log the item being rendered
-          return <ImageCard wallpaper={item} />;
-        }}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <FlatList
+          data={data}
+          numColumns={numColumns}
+          renderItem={({ item }) => {
+            return (
+              <View style={styles.itemContainer}>
+                <ImageCard wallpaper={item} />
+               </View>
+             );
+          }}
+          keyExtractor={(item) => item.id.toString()}
+          onEndReached={fetchData}
+          onEndReachedThreshold={0.5}
+          contentContainerStyle={styles.flatlistContainer}
+        />
+      )}
     </View>
   );
 }
@@ -58,9 +77,18 @@ const styles = StyleSheet.create({
   searchInput: {
     borderWidth: 2,
     backgroundColor: "white",
-    borderRadius: 50,
+    borderRadius: 15,
     padding: 10,
     marginBottom: 20,
     width: "80%",
+  },
+  itemContainer: {
+    // flex: 1,
+    marginHorizontal: 1,
+    marginVertical:1
+  },
+  flatlistContainer: {
+    flexGrow: 1,
+    width: 100
   },
 });
